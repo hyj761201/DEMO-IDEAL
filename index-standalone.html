@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生信息管理系统</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+                'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+
+        .btn-primary:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2563eb;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .student-list-container {
+            padding: 30px;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .list-header h2 {
+            color: #1f2937;
+            font-size: 1.5rem;
+            margin: 0;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .student-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        .student-table thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .student-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+        }
+
+        .student-table tbody tr {
+            border-bottom: 1px solid #e5e7eb;
+            transition: background-color 0.2s ease;
+        }
+
+        .student-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+
+        .student-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .student-table td {
+            padding: 16px;
+            color: #4b5563;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-sm {
+            padding: 8px 16px;
+            font-size: 0.875rem;
+        }
+
+        .loading {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-icon {
+            font-size: 4rem;
+            margin-bottom: 16px;
+        }
+
+        .empty-state h3 {
+            color: #1f2937;
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .form-header h2 {
+            color: #1f2937;
+            font-size: 1.75rem;
+            margin: 0;
+        }
+
+        .student-form {
+            max-width: 600px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #374151;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+            background: white;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input.input-error {
+            border-color: #ef4444;
+        }
+
+        .form-group input.input-error:focus {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+        }
+
+        .form-group input::placeholder {
+            color: #9ca3af;
+        }
+
+        .error-message {
+            display: block;
+            margin-top: 6px;
+            color: #ef4444;
+            font-size: 0.875rem;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            padding-top: 24px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .form-actions button {
+            flex: 1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .student-list-container,
+            .form-container {
+                padding: 20px;
+            }
+
+            .student-table {
+                font-size: 0.875rem;
+            }
+
+            .student-table th,
+            .student-table td {
+                padding: 12px 8px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-sm {
+                width: 100%;
+            }
+
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .form-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <div class="container">
+            <header class="header">
+                <h1>🎓 学生信息管理系统</h1>
+                <button class="btn btn-primary" id="addBtn">+ 添加学生</button>
+            </header>
+
+            <!-- 列表视图 -->
+            <div id="listView" class="student-list-container">
+                <div class="list-header">
+                    <h2>学生列表 (<span id="studentCount">0</span>)</h2>
+                    <button class="btn btn-secondary" onclick="loadStudents()">🔄 刷新</button>
+                </div>
+                <div id="listContent">
+                    <!-- 动态内容 -->
+                </div>
+            </div>
+
+            <!-- 表单视图 -->
+            <div id="formView" class="form-container hidden">
+                <div class="form-header">
+                    <h2 id="formTitle">添加新学生</h2>
+                </div>
+                <form id="studentForm" class="student-form" onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="name">
+                            姓名 <span class="required">*</span>
+                        </label>
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            placeholder="请输入学生姓名"
+                            required
+                        />
+                        <span class="error-message hidden" id="nameError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">
+                            邮箱 <span class="required">*</span>
+                        </label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="请输入邮箱地址"
+                            required
+                        />
+                        <span class="error-message hidden" id="emailError"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-success" id="submitBtn">✓ 添加</button>
+                        <button type="button" class="btn btn-secondary" onclick="showListView()">✕ 取消</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:8080/api';
+        let editingStudentId = null;
+
+        // 页面加载时获取学生列表
+        window.onload = function() {
+            loadStudents();
+        };
+
+        // 加载学生列表
+        async function loadStudents() {
+            const listContent = document.getElementById('listContent');
+            listContent.innerHTML = '<div class="loading"><div class="spinner"></div><p>加载中...</p></div>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/student/all`);
+                const result = await response.json();
+
+                if (result.success) {
+                    displayStudents(result.data);
+                } else {
+                    showError('加载失败: ' + (result.errorMsg || '未知错误'));
+                }
+            } catch (error) {
+                const errorMsg = error.message || '未知错误';
+                showError('加载失败: ' + errorMsg + '<br>请确保后端服务已启动在 http://localhost:8080');
+            }
+        }
+
+        // 显示学生列表
+        function displayStudents(students) {
+            const listContent = document.getElementById('listContent');
+            const studentCount = document.getElementById('studentCount');
+            studentCount.textContent = students.length;
+
+            if (students.length === 0) {
+                listContent.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <h3>暂无学生信息</h3>
+                        <p>点击"添加学生"按钮开始添加学生信息</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let tableHTML = `
+                <div class="table-wrapper">
+                    <table class="student-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>姓名</th>
+                                <th>邮箱</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            students.forEach(student => {
+                tableHTML += `
+                    <tr>
+                        <td>${student.id}</td>
+                        <td>${student.name}</td>
+                        <td>${student.email}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-edit btn-sm" onclick="editStudent(${student.id}, '${student.name}', '${student.email}')">
+                                    ✏️ 编辑
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteStudent(${student.id})">
+                                    🗑️ 删除
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tableHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+            listContent.innerHTML = tableHTML;
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            const listContent = document.getElementById('listContent');
+            listContent.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">⚠️</div>
+                    <h3>加载失败</h3>
+                    <p>${message}</p>
+                </div>
+            `;
+        }
+
+        // 显示列表视图
+        function showListView() {
+            document.getElementById('listView').classList.remove('hidden');
+            document.getElementById('formView').classList.add('hidden');
+            editingStudentId = null;
+            document.getElementById('studentForm').reset();
+        }
+
+        // 显示表单视图
+        function showFormView() {
+            document.getElementById('listView').classList.add('hidden');
+            document.getElementById('formView').classList.remove('hidden');
+        }
+
+        // 添加按钮点击
+        document.getElementById('addBtn').addEventListener('click', function() {
+            editingStudentId = null;
+            document.getElementById('formTitle').textContent = '添加新学生';
+            document.getElementById('submitBtn').textContent = '✓ 添加';
+            document.getElementById('studentForm').reset();
+            showFormView();
+        });
+
+        // 编辑学生
+        function editStudent(id, name, email) {
+            editingStudentId = id;
+            document.getElementById('formTitle').textContent = '编辑学生信息';
+            document.getElementById('submitBtn').textContent = '✓ 更新';
+            document.getElementById('name').value = name;
+            document.getElementById('email').value = email;
+            showFormView();
+        }
+
+        // 删除学生
+        async function deleteStudent(id) {
+            if (!confirm('确定要删除这名学生吗？')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/student/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok || response.status === 200) {
+                    alert('删除成功！');
+                    loadStudents();
+                } else {
+                    alert('删除失败');
+                }
+            } catch (error) {
+                alert('删除失败: ' + error.message);
+            }
+        }
+
+        // 提交表单
+        async function handleSubmit(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+
+            // 验证
+            if (!name) {
+                showFieldError('name', '姓名不能为空');
+                return;
+            }
+            if (!email) {
+                showFieldError('email', '邮箱不能为空');
+                return;
+            }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showFieldError('email', '请输入有效的邮箱地址');
+                return;
+            }
+
+            clearErrors();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = '处理中...';
+
+            try {
+                if (editingStudentId) {
+                    // 更新
+                    const params = new URLSearchParams();
+                    params.append('name', name);
+                    params.append('email', email);
+                    
+                    const response = await fetch(`${API_BASE_URL}/student/${editingStudentId}?${params.toString()}`, {
+                        method: 'PUT'
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('更新成功！');
+                        showListView();
+                        loadStudents();
+                    } else {
+                        alert('更新失败: ' + (result.errorMsg || '未知错误'));
+                    }
+                } else {
+                    // 添加
+                    const response = await fetch(`${API_BASE_URL}/student`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ name, email })
+                    });
+
+                    const result = await response.json();
+                    if (result.success) {
+                        alert('添加成功！');
+                        showListView();
+                        loadStudents();
+                    } else {
+                        alert('添加失败: ' + (result.errorMsg || '未知错误'));
+                    }
+                }
+            } catch (error) {
+                alert('操作失败: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = editingStudentId ? '✓ 更新' : '✓ 添加';
+            }
+        }
+
+        // 显示字段错误
+        function showFieldError(fieldName, message) {
+            const errorElement = document.getElementById(fieldName + 'Error');
+            errorElement.textContent = message;
+            errorElement.classList.remove('hidden');
+            document.getElementById(fieldName).classList.add('input-error');
+        }
+
+        // 清除错误
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(el => {
+                el.classList.add('hidden');
+                el.textContent = '';
+            });
+            document.querySelectorAll('.input-error').forEach(el => {
+                el.classList.remove('input-error');
+            });
+        }
+
+        // 输入时清除错误
+        document.getElementById('name').addEventListener('input', function() {
+            if (this.classList.contains('input-error')) {
+                document.getElementById('nameError').classList.add('hidden');
+                this.classList.remove('input-error');
+            }
+        });
+
+        document.getElementById('email').addEventListener('input', function() {
+            if (this.classList.contains('input-error')) {
+                document.getElementById('emailError').classList.add('hidden');
+                this.classList.remove('input-error');
+            }
+        });
+    </script>
+</body>
+</html>
+
