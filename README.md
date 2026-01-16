@@ -1,6 +1,6 @@
-# 学生信息管理系统 - 前端
+# 学生信息管理系统 - 全栈
 
-这是一个基于 React + Vite 构建的学生信息管理系统前端应用。
+这是一个基于 React + Vite 以及spring boot + mysql构建的学生信息管理系统全栈应用。
 
 ## 功能特性
 
@@ -16,6 +16,8 @@
 - Vite
 - Axios
 - CSS3
+- Spring boot
+- Mysql
 
 ## 安装和运行
 
@@ -45,4 +47,5 @@ npm run build
 确保后端 SpringBoot 应用运行在 `http://localhost:8080`
 
 如果需要修改后端地址，请编辑 `src/services/api.js` 文件中的 `API_BASE_URL`
+
 
